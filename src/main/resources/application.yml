@@ -1,0 +1,45 @@
+info:
+  app:
+    name: studies
+    description: Studies Module
+    version: 1.0
+server:
+  port: 8080
+
+logging:
+  level:
+    org:
+      springframework:
+        web: DEBUG
+
+management:
+  endpoints:
+    web:
+      exposure:
+        include: "*"
+
+security:
+  jwt:
+    client-secret: XY7kmzoNzl100
+    token-validity-seconds: 6060
+
+spring:
+  main:
+    #Avoid DataSource issue #1142 overriding bean definition
+    allow-bean-definition-overriding: true
+  datasource:
+    url: jdbc:h2:file:~/studies
+    username: sa
+    password:
+    driver-class-name: org.h2.Driver
+    max-active: 10
+    max-idle: 8
+    max-wait: 10000
+    min-evictable-idle-time-millis: 1000
+    min-idle: 8
+    time-between-eviction-runs-millis: 1
+
+  h2:
+    console:
+      enabled: true
+      path: /h2
