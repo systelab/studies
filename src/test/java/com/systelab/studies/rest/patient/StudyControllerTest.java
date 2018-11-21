@@ -4,6 +4,7 @@ import com.fasterxml.jackson.core.JsonProcessingException;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.systelab.studies.config.TokenProvider;
 import com.systelab.studies.model.study.Study;
+import com.systelab.studies.model.study.StudyType;
 import com.systelab.studies.repository.StudyRepository;
 import org.junit.Before;
 import org.junit.Test;
@@ -126,7 +127,7 @@ public class StudyControllerTest {
     private Study createStudy(String studyName) {
         Study study = new Study();
         study.setId(UUID.fromString("a98b8fe5-7cc5-4348-8f99-4860f5b84b13"));
-        study.setType("D");
+        study.setType(StudyType.A);
         study.setDescription(studyName);
         return study;
     }

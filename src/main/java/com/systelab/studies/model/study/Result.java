@@ -25,12 +25,10 @@ public class Result {
 
     @ManyToOne
     @JoinColumn(name="test_id")
-    @JsonBackReference
     private Test test;
 
     @ManyToOne
     @JoinColumn(name="instrument_id")
-    @JsonBackReference
     private Instrument instrument;
 
     private Double value;

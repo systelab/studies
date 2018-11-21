@@ -23,8 +23,7 @@ import java.util.Set;
 @Table(name = "study")
 public class Study extends ModelBase implements Serializable {
 
-    @Size(min = 1, max = 1)
-    private String type;
+    private StudyType type;
 
     @Size(min = 1, max = 255)
     private String description;
@@ -32,8 +31,7 @@ public class Study extends ModelBase implements Serializable {
     @Size(max = 255)
     private String user;
 
-    @Size(min = 1, max = 1)
-    private String status;
+    private StudyStatus status;
 
     @ManyToMany
     @JoinTable(name = "study_instruments",
