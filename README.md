@@ -1,11 +1,11 @@
 
-# `studies` — Studies
+# Studies
 
-This project is an application skeleton of typical [Spring Boot][sboot] backend application. 
+This project is a microservice skeleton based on [Spring Boot][sboot] for an Studies Module. 
 
 ## Getting Started
 
-To get you started you can simply clone the `studies` repository and install the dependencies:
+To get you started you can simply clone the `studies` repository and install the dependencies.
 
 ### Prerequisites
 
@@ -55,11 +55,7 @@ First generate a token by login as user Systelab and password Systelab. After th
 
 ### Build docker image
 
-There is an Automated Build Task in Docker Cloud in order to build the Docker Image. 
-This task, triggers a new build with every git push to your source code repository to create a 'latest' image.
-There is another build rule to trigger a new tag and create a 'version-x.y.z' image
-
-You can always manually create the image with the following command:
+Create a Docker image with the following command:
 
 ```bash
 docker build -t systelab/studies . 
