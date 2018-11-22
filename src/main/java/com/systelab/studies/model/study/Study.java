@@ -1,5 +1,6 @@
 package com.systelab.studies.model.study;
 
+import com.fasterxml.jackson.annotation.JsonIgnore;
 import com.systelab.studies.model.ModelBase;
 import io.swagger.annotations.ApiModelProperty;
 import lombok.AllArgsConstructor;
@@ -45,6 +46,13 @@ public class Study extends ModelBase implements Serializable {
             joinColumns = @JoinColumn(table = "study", name = "study_id", referencedColumnName = "id"),
             inverseJoinColumns = @JoinColumn(table = "test", name = "test_id", referencedColumnName = "id"))
     private Set<Test> tests= new HashSet<>();
+
+    @ManyToMany(fetch = FetchType.LAZY, cascade = CascadeType.ALL)
+    @JsonIgnore
+    @JoinTable(name = "study_results",
+            joinColumns = @JoinColumn(table = "study", name = "study_id", referencedColumnName = "id"),
+            inverseJoinColumns = @JoinColumn(table = "result", name = "result_id", referencedColumnName = "id"))
+    private Set<Result> results= new HashSet<>();
 
     @ApiModelProperty(notes = "YYYY-MM-DD")
     private LocalDate dateFrom;

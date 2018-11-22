@@ -1,5 +1,7 @@
 package com.systelab.studies.controller;
 
+import com.sun.xml.internal.xsom.impl.scd.Iterators;
+import com.systelab.studies.model.study.Result;
 import com.systelab.studies.model.study.Study;
 import com.systelab.studies.repository.StudyNotFoundException;
 import com.systelab.studies.repository.StudyRepository;
@@ -19,6 +21,8 @@ import org.springframework.web.servlet.support.ServletUriComponentsBuilder;
 import javax.annotation.security.PermitAll;
 import javax.validation.Valid;
 import java.net.URI;
+import java.util.Optional;
+import java.util.Set;
 import java.util.UUID;
 
 @Api(value = "Study", description = "API for Study management", tags = {"Study"})
@@ -42,6 +46,25 @@ public class StudiesController {
     public ResponseEntity<Study> getStudy(@PathVariable("uid") UUID studyId) {
         return this.studyRepository.findById(studyId).map(ResponseEntity::ok).orElseThrow(() -> new StudyNotFoundException(studyId));
 
+    }
+
+    @ApiOperation(value = "Get Results", notes = "", authorizations = {@Authorization(value = "Bearer")})
+    @GetMapping("studies/{uid}/results")
+    public ResponseEntity<Set<Result>> getStudyResults(@PathVariable("uid") UUID studyId) {
+        return this.studyRepository.findById(studyId).map((study)->ResponseEntity.ok(study.getResults())).orElseThrow(() -> new StudyNotFoundException(studyId));
+
+    }
+
+    @ApiOperation(value = "Add Results", notes = "", authorizations = {@Authorization(value = "Bearer")})
+    @PostMapping("studies/{uid}/results")
+    public ResponseEntity<Set<Result>> addStudyResults(@PathVariable("uid") UUID studyId, @RequestBody @ApiParam(required = true) @Valid Set<Result> results) {
+
+        Study study=this.studyRepository.findById(studyId).orElseThrow(() -> new StudyNotFoundException(studyId));
+
+        study.getResults().addAll(results);
+        this.studyRepository.save(study);
+        URI selfLink = URI.create(ServletUriComponentsBuilder.fromCurrentRequest().toUriString());
+        return ResponseEntity.created(selfLink).body(results);
     }
 
     @ApiOperation(value = "Create a Study", notes = "", authorizations = {@Authorization(value = "Bearer")})
