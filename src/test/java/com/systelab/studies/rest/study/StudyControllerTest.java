@@ -1,4 +1,4 @@
-package com.systelab.studies.rest.patient;
+package com.systelab.studies.rest.study;
 
 import com.fasterxml.jackson.core.JsonProcessingException;
 import com.fasterxml.jackson.databind.ObjectMapper;
@@ -61,8 +61,8 @@ public class StudyControllerTest {
     @Test
     @WithMockUser(roles = "USER")
     public void testGetAllStudy() throws Exception {
-        Study studyA = createStudy("A");
-        Study studyB = createStudy("B");
+        Study studyA = createStudy("Study A");
+        Study studyB = createStudy("Study B");
         List<Study> studies = Arrays.asList(studyA,
                 studyB);
 
@@ -70,37 +70,37 @@ public class StudyControllerTest {
 
         when(mockStudyRepository.findAll(isA(Pageable.class))).thenReturn(pageofStudy);
 
-        mvc.perform(get("/studies/v1/patients")
+        mvc.perform(get("/studies/v1/studies")
                 .header("Authorization", "Bearer 5d1103e-b3e1-4ae9-b606-46c9c1bc915a"))
                 .andExpect(content().contentType(MediaType.APPLICATION_JSON_UTF8_VALUE))
                 .andExpect(status().is2xxSuccessful())
                 .andExpect(jsonPath("$.content[1].id", is("a98b8fe5-7cc5-4348-8f99-4860f5b84b13")))
-                .andExpect(jsonPath("$.content[0].name", is("patientA")));
+                .andExpect(jsonPath("$.content[0].description", is("Study A")));
     }
 
     @Test
     @WithMockUser(roles = "USER")
     public void testGetStudy() throws Exception {
-        Optional<Study> patient = Optional.of(createStudy("A"));
+        Optional<Study> patient = Optional.of(createStudy("Study A"));
 
         when(mockStudyRepository.findById(isA(UUID.class))).thenReturn(patient);
 
-        mvc.perform(get("/studies/v1/patients/{id}", "a98b8fe5-7cc5-4348-8f99-4860f5b84b13")
+        mvc.perform(get("/studies/v1/studies/{id}", "a98b8fe5-7cc5-4348-8f99-4860f5b84b13")
                 .header("Authorization", "Bearer 5d1103e-b3e1-4ae9-b606-46c9c1bc915a"))
                 .andExpect(content().contentType(MediaType.APPLICATION_JSON_UTF8_VALUE))
                 .andExpect(status().is2xxSuccessful())
                 .andExpect(jsonPath("$.id", is("a98b8fe5-7cc5-4348-8f99-4860f5b84b13")))
-                .andExpect(jsonPath("$.surname", is("surnameA")));
+                .andExpect(jsonPath("$.description", is("Study A")));
     }
 
     @Test
     @WithMockUser(roles = "ADMIN")
-    public void testInsertStudy() throws Exception {
+    public void testAddStudy() throws Exception {
         Study study = createStudy("A");
 
         when(mockStudyRepository.save(any())).thenReturn(study);
 
-        mvc.perform(post("/studies/v1/patients/study")
+        mvc.perform(post("/studies/v1/studies/study")
                 .header("Authorization", "Bearer 5d1103e-b3e1-4ae9-b606-46c9c1bc915a")
                 .contentType(MediaType.APPLICATION_JSON).content(createStudyInJson(study)))
                 .andExpect(status().is2xxSuccessful());
@@ -110,10 +110,10 @@ public class StudyControllerTest {
     @Test
     @WithMockUser(roles = "User")
     public void testDeleteStudy() throws Exception {
-        Optional<Study> patient = Optional.of(createStudy("A"));
-        when(mockStudyRepository.findById(isA(UUID.class))).thenReturn(patient);
+        Optional<Study> study = Optional.of(createStudy("Study A"));
+        when(mockStudyRepository.findById(isA(UUID.class))).thenReturn(study);
 
-        mvc.perform(delete("/studies/v1/patients/{1}", "a98b8fe5-7cc5-4348-8f99-4860f5b84b13")
+        mvc.perform(delete("/studies/v1/studies/{1}", "a98b8fe5-7cc5-4348-8f99-4860f5b84b13")
                 .header("Authorization", "Bearer 5d1103e-b3e1-4ae9-b606-46c9c1bc915a"))
                 .andExpect(status().is2xxSuccessful());
 
