@@ -1,6 +1,5 @@
 package com.systelab.studies.model.study;
 
-import com.fasterxml.jackson.annotation.JsonBackReference;
 import io.swagger.annotations.ApiModelProperty;
 import lombok.AllArgsConstructor;
 import lombok.Data;
@@ -24,11 +23,11 @@ public class Result {
     private String containerLabel;
 
     @ManyToOne
-    @JoinColumn(name="test_id")
+    @JoinColumn(name = "test_id")
     private Test test;
 
     @ManyToOne
-    @JoinColumn(name="instrument_id")
+    @JoinColumn(name = "instrument_id")
     private Instrument instrument;
 
     private Double value;
