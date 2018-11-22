@@ -1,6 +1,5 @@
 package com.systelab.studies.controller;
 
-import com.sun.xml.internal.xsom.impl.scd.Iterators;
 import com.systelab.studies.model.study.Result;
 import com.systelab.studies.model.study.Study;
 import com.systelab.studies.repository.StudyNotFoundException;
@@ -21,7 +20,6 @@ import org.springframework.web.servlet.support.ServletUriComponentsBuilder;
 import javax.annotation.security.PermitAll;
 import javax.validation.Valid;
 import java.net.URI;
-import java.util.Optional;
 import java.util.Set;
 import java.util.UUID;
 
@@ -48,25 +46,6 @@ public class StudiesController {
 
     }
 
-    @ApiOperation(value = "Get Results", notes = "", authorizations = {@Authorization(value = "Bearer")})
-    @GetMapping("studies/{uid}/results")
-    public ResponseEntity<Set<Result>> getStudyResults(@PathVariable("uid") UUID studyId) {
-        return this.studyRepository.findById(studyId).map((study)->ResponseEntity.ok(study.getResults())).orElseThrow(() -> new StudyNotFoundException(studyId));
-
-    }
-
-    @ApiOperation(value = "Add Results", notes = "", authorizations = {@Authorization(value = "Bearer")})
-    @PostMapping("studies/{uid}/results")
-    public ResponseEntity<Set<Result>> addStudyResults(@PathVariable("uid") UUID studyId, @RequestBody @ApiParam(required = true) @Valid Set<Result> results) {
-
-        Study study=this.studyRepository.findById(studyId).orElseThrow(() -> new StudyNotFoundException(studyId));
-
-        study.getResults().addAll(results);
-        this.studyRepository.save(study);
-        URI selfLink = URI.create(ServletUriComponentsBuilder.fromCurrentRequest().toUriString());
-        return ResponseEntity.created(selfLink).body(results);
-    }
-
     @ApiOperation(value = "Create a Study", notes = "", authorizations = {@Authorization(value = "Bearer")})
     @PostMapping("studies/study")
     public ResponseEntity<Study> createStudy(@RequestBody @ApiParam(value = "Study", required = true) @Valid Study p) {
@@ -74,7 +53,6 @@ public class StudiesController {
         URI uri = MvcUriComponentsBuilder.fromController(getClass()).path("/{id}").buildAndExpand(study.getId()).toUri();
         return ResponseEntity.created(uri).body(study);
     }
-
 
     @ApiOperation(value = "Create or Update (idempotent) an existing Study", notes = "", authorizations = {@Authorization(value = "Bearer")})
     @PutMapping("studies/{uid}")
@@ -89,7 +67,6 @@ public class StudiesController {
                 }).orElseThrow(() -> new StudyNotFoundException(studyId));
     }
 
-
     @ApiOperation(value = "Delete a Study", notes = "", authorizations = {@Authorization(value = "Bearer")})
     @DeleteMapping("studies/{uid}")
     public ResponseEntity<?> removeStudy(@PathVariable("uid") UUID studyId) {
@@ -98,5 +75,23 @@ public class StudiesController {
                     studyRepository.delete(c);
                     return ResponseEntity.noContent().build();
                 }).orElseThrow(() -> new StudyNotFoundException(studyId));
+    }
+
+    @ApiOperation(value = "Get Results", notes = "", authorizations = {@Authorization(value = "Bearer")})
+    @GetMapping("studies/{uid}/results")
+    public ResponseEntity<Set<Result>> getStudyResults(@PathVariable("uid") UUID studyId) {
+        return this.studyRepository.findById(studyId).map((study) -> ResponseEntity.ok(study.getResults())).orElseThrow(() -> new StudyNotFoundException(studyId));
+    }
+
+    @ApiOperation(value = "Add Results", notes = "", authorizations = {@Authorization(value = "Bearer")})
+    @PostMapping("studies/{uid}/results")
+    public ResponseEntity<Set<Result>> addStudyResults(@PathVariable("uid") UUID studyId, @RequestBody @ApiParam(required = true) @Valid Set<Result> results) {
+
+        Study study = this.studyRepository.findById(studyId).orElseThrow(() -> new StudyNotFoundException(studyId));
+
+        study.getResults().addAll(results);
+        this.studyRepository.save(study);
+        URI selfLink = URI.create(ServletUriComponentsBuilder.fromCurrentRequest().toUriString());
+        return ResponseEntity.created(selfLink).body(results);
     }
 }
