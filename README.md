@@ -13,7 +13,7 @@ You need [git][git] to clone the `studies` repository.
 
 You will need [Java™ SE Development Kit 8][jdk-download] and [Maven][maven].
 
-### Clone `studies`
+### Clone
 
 Clone the `studies` repository using git:
 
