@@ -1,9 +1,9 @@
 package com.systelab.studies.repository;
 
-import com.systelab.studies.model.study.StudyTest;
+import com.systelab.studies.model.study.StudyResult;
 import org.springframework.data.jpa.repository.JpaRepository;
 import org.springframework.stereotype.Repository;
 
 @Repository
-public interface TestRepository extends JpaRepository<StudyTest, Long> {
+public interface StudyResultRepository extends JpaRepository<StudyResult, Long> {
 }

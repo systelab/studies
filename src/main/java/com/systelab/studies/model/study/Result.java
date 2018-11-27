@@ -24,19 +24,24 @@ public class Result {
 
     @ManyToOne
     @JoinColumn(name = "test_id")
-    private Test test;
+    private StudyTest studyTest;
 
     @ManyToOne
     @JoinColumn(name = "instrument_id")
     private Instrument instrument;
 
     private Double value;
-    private String user;
+    private String userresult;
     private Instant resultDate;
 
     private String instrumentAlarms;
     private String pseudoCodeValue;
     private InstrumentTestStatus status;
+
+    @ManyToOne
+    @JoinColumn(name = "material_id")
+    private Material material;
+
     private String comments;
 
 }

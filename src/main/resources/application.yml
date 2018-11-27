@@ -11,6 +11,8 @@ logging:
     org:
       springframework:
         web: DEBUG
+      hibernate:
+        type: trace
 
 management:
   endpoints:
@@ -24,22 +26,29 @@ security:
     token-validity-seconds: 6060
 
 spring:
-  main:
-    #Avoid DataSource issue #1142 overriding bean definition
-    allow-bean-definition-overriding: true
-  datasource:
-    url: jdbc:h2:file:~/studies
-    username: sa
-    password:
-    driver-class-name: org.h2.Driver
-    max-active: 10
-    max-idle: 8
-    max-wait: 10000
-    min-evictable-idle-time-millis: 1000
-    min-idle: 8
-    time-between-eviction-runs-millis: 1
+  batch:
+    initialize-schema: always
+  jpa:
+    hibernate:
+      ddl-auto: create
 
-  h2:
-    console:
-      enabled: true
-      path: /h2
+  datasource:
+    url: jdbc:oracle:thin:@212.163.185.131:1521:hemohub
+    username: HEMOHUB_QA_V1_6_0
+    password: hemohub
+    driver-class-oracle:
+      jdbc:
+        driver:
+          OracleDriver
+
+  properties:
+    hibernate:
+      show_sql: true
+      format_sql: true
+
+  max-active: 10
+  max-idle: 8
+  max-wait: 10000
+  min-evictable-idle-time-millis: 1000
+  min-idle: 8
+  time-between-eviction-runs-millis: 1

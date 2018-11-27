@@ -29,9 +29,12 @@ public class Study extends ModelBase implements Serializable {
     private String description;
 
     @Size(max = 255)
-    private String user;
+    private String userstudy;
 
     private StudyStatus status;
+
+    @ApiModelProperty(notes = "YYYY-MM-DD")
+    private LocalDate lastUpdate;
 
     @ManyToMany
     @JoinTable(name = "study_instruments",
@@ -43,8 +46,8 @@ public class Study extends ModelBase implements Serializable {
     @ManyToMany
     @JoinTable(name = "study_tests",
             joinColumns = @JoinColumn(table = "study", name = "study_id", referencedColumnName = "id"),
-            inverseJoinColumns = @JoinColumn(table = "test", name = "test_id", referencedColumnName = "id"))
-    private Set<Test> tests= new HashSet<>();
+            inverseJoinColumns = @JoinColumn(table = "studyTest", name = "studytest_id", referencedColumnName = "id"))
+    private Set<StudyTest> studyTests = new HashSet<>();
 
     @ApiModelProperty(notes = "YYYY-MM-DD")
     private LocalDate dateFrom;
