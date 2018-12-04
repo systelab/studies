@@ -11,8 +11,6 @@ logging:
     org:
       springframework:
         web: DEBUG
-      hibernate:
-        type: trace
 
 management:
   endpoints:
@@ -26,25 +24,24 @@ security:
     token-validity-seconds: 6060
 
 spring:
-  batch:
-    initialize-schema: always
   jpa:
     hibernate:
-      ddl-auto: create
+      ddl-auto: update
+    properties:
+      hibernate:
+        show_sql: true
+        format_sql: true
 
   datasource:
-    url: jdbc:oracle:thin:@212.163.185.131:1521:hemohub
-    username: HEMOHUB_QA_V1_6_0
-    password: hemohub
+    url: jdbc:oracle:thin:@HOST:PORT:SCHEMA
+    username: USER
+    password: PASSWORD
     driver-class-oracle:
       jdbc:
         driver:
           OracleDriver
 
-  properties:
-    hibernate:
-      show_sql: true
-      format_sql: true
+
 
   max-active: 10
   max-idle: 8

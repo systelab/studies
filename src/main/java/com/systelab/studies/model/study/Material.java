@@ -27,8 +27,7 @@ public class Material {
     @Size(min = 1, max = 255)
     private String name;
 
-    @Size(min = 1, max = 255)
-    private String type;
+    private MaterialType type;
 
     @Size(min = 1, max = 255)
     private String lotNumber;

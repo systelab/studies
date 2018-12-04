@@ -127,7 +127,7 @@ public class StudyControllerTest {
     private Study createStudy(String studyName) {
         Study study = new Study();
         study.setId(UUID.fromString("a98b8fe5-7cc5-4348-8f99-4860f5b84b13"));
-        study.setType(StudyType.REAGENT);
+        study.setType(StudyType.REAGENT_LOT_CONVERSION_TOOL);
         study.setDescription(studyName);
         return study;
     }

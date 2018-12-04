@@ -1,5 +1,5 @@
 package com.systelab.studies.model.study;
 
 public enum StudyType {
-    REAGENT
+    REAGENT_LOT_CONVERSION_TOOL
 }

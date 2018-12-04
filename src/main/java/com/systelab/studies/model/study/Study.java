@@ -1,5 +1,9 @@
 package com.systelab.studies.model.study;
 
+import com.fasterxml.jackson.annotation.JsonBackReference;
+import com.fasterxml.jackson.annotation.JsonIgnore;
+import com.fasterxml.jackson.annotation.JsonIgnoreProperties;
+import com.fasterxml.jackson.annotation.JsonManagedReference;
 import com.systelab.studies.model.ModelBase;
 import io.swagger.annotations.ApiModelProperty;
 import lombok.AllArgsConstructor;
@@ -29,7 +33,7 @@ public class Study extends ModelBase implements Serializable {
     private String description;
 
     @Size(max = 255)
-    private String userstudy;
+    private String studyUser;
 
     private StudyStatus status;
 
@@ -37,17 +41,21 @@ public class Study extends ModelBase implements Serializable {
     private LocalDate lastUpdate;
 
     @ManyToMany
-    @JoinTable(name = "study_instruments",
+    @JoinTable(name = "study_connections",
             joinColumns = @JoinColumn(table = "study", name = "study_id", referencedColumnName = "id"),
-            inverseJoinColumns = @JoinColumn(table = "instrument", name = "instrument_id", referencedColumnName = "id"))
-    private Set<Instrument> instruments = new HashSet<>();
+            inverseJoinColumns = @JoinColumn(table = "connection", name = "connection_id", referencedColumnName = "connectionid"))
+    private Set<Connection> connections = new HashSet<>();
 
 
     @ManyToMany
     @JoinTable(name = "study_tests",
             joinColumns = @JoinColumn(table = "study", name = "study_id", referencedColumnName = "id"),
-            inverseJoinColumns = @JoinColumn(table = "studyTest", name = "studytest_id", referencedColumnName = "id"))
-    private Set<StudyTest> studyTests = new HashSet<>();
+            inverseJoinColumns = @JoinColumn(table = "test", name = "test_id", referencedColumnName = "testid"))
+    private Set<Test> tests = new HashSet<>();
+
+    @OneToMany( mappedBy="study" )
+    @JsonBackReference(value="study")
+    private Set<StudyResult> studyResult;
 
     @ApiModelProperty(notes = "YYYY-MM-DD")
     private LocalDate dateFrom;

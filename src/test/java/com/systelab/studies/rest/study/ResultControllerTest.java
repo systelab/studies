@@ -4,10 +4,7 @@ import com.fasterxml.jackson.core.JsonProcessingException;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.systelab.studies.config.TokenProvider;
 import com.systelab.studies.model.study.Result;
-import com.systelab.studies.model.study.Study;
-import com.systelab.studies.model.study.StudyType;
 import com.systelab.studies.repository.ResultRepository;
-import com.systelab.studies.repository.StudyRepository;
 import org.junit.Before;
 import org.junit.Test;
 import org.junit.runner.RunWith;
@@ -27,7 +24,6 @@ import org.springframework.web.context.WebApplicationContext;
 import java.util.Arrays;
 import java.util.List;
 import java.util.Optional;
-import java.util.UUID;
 
 import static org.hamcrest.Matchers.is;
 import static org.mockito.ArgumentMatchers.any;
