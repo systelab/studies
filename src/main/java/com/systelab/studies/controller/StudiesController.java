@@ -1,6 +1,5 @@
 package com.systelab.studies.controller;
 
-import com.systelab.studies.model.study.Result;
 import com.systelab.studies.model.study.Study;
 import com.systelab.studies.model.study.StudyResult;
 import com.systelab.studies.repository.StudyNotFoundException;
@@ -94,7 +93,7 @@ public class StudiesController {
     }
 
     @ApiOperation(value = "Delete a Result from Study", notes = "", authorizations = {@Authorization(value = "Bearer")})
-    @DeleteMapping("study/{uid}/{id}")
+    @DeleteMapping("study/{uid}/result/{id}")
     public ResponseEntity<?> removeResultStudy(@PathVariable("uid") UUID studyId, @PathVariable("id") Long resultId) {
         return this.studyResultRepository.findByStudyIdAndResultId(studyId,resultId)
                 .map(c -> {
