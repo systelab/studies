@@ -1,6 +1,5 @@
 package com.systelab.studies.controller;
 
-import com.systelab.studies.model.study.Result;
 import com.systelab.studies.model.study.Study;
 import com.systelab.studies.model.study.StudyResult;
 import com.systelab.studies.repository.StudyNotFoundException;
@@ -19,10 +18,8 @@ import org.springframework.web.bind.annotation.*;
 import org.springframework.web.servlet.mvc.method.annotation.MvcUriComponentsBuilder;
 import org.springframework.web.servlet.support.ServletUriComponentsBuilder;
 
-import javax.annotation.security.PermitAll;
 import javax.validation.Valid;
 import java.net.URI;
-import java.util.Set;
 import java.util.UUID;
 
 @Api(value = "Study", description = "API for Study management", tags = {"Study"})
@@ -39,7 +36,6 @@ public class StudiesController {
 
     @ApiOperation(value = "Get all studies", notes = "", authorizations = {@Authorization(value = "Bearer")})
     @GetMapping("studies")
-    @PermitAll
     public ResponseEntity<Page<Study>> getAllStudies(Pageable pageable) {
         return ResponseEntity.ok(studyRepository.findAll(pageable));
     }
@@ -95,7 +91,7 @@ public class StudiesController {
     @ApiOperation(value = "Delete a Result from Study", notes = "", authorizations = {@Authorization(value = "Bearer")})
     @DeleteMapping("study/{uid}/result/{id}")
     public ResponseEntity<?> removeResultStudy(@PathVariable("uid") UUID studyId, @PathVariable("id") Long resultId) {
-        return this.studyResultRepository.findByStudyIdAndResultId(studyId,resultId)
+        return this.studyResultRepository.findByStudyIdAndResultId(studyId, resultId)
                 .map(c -> {
                     studyResultRepository.delete(c);
                     return ResponseEntity.noContent().build();
@@ -105,7 +101,7 @@ public class StudiesController {
     @ApiOperation(value = "Get Results from Study", notes = "", authorizations = {@Authorization(value = "Bearer")})
     @GetMapping("study/{uid}/result")
     public ResponseEntity<Page<StudyResult>> getResultsStudy(@PathVariable("uid") UUID studyId, Pageable pageable) {
-        return this.studyResultRepository.findByStudyId(studyId,pageable).map(ResponseEntity::ok).orElseThrow(() -> new StudyNotFoundException(studyId));
+        return this.studyResultRepository.findByStudyId(studyId, pageable).map(ResponseEntity::ok).orElseThrow(() -> new StudyNotFoundException(studyId));
 
     }
 }

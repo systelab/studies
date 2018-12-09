@@ -2,7 +2,7 @@ package com.systelab.studies.rest.study;
 
 import com.fasterxml.jackson.core.JsonProcessingException;
 import com.fasterxml.jackson.databind.ObjectMapper;
-import com.systelab.studies.config.TokenProvider;
+import com.systelab.studies.config.authentication.TokenProvider;
 import com.systelab.studies.model.study.Result;
 import com.systelab.studies.repository.ResultRepository;
 import org.junit.Before;

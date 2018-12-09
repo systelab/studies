@@ -16,7 +16,6 @@ import org.springframework.web.bind.annotation.*;
 import org.springframework.web.servlet.mvc.method.annotation.MvcUriComponentsBuilder;
 import org.springframework.web.servlet.support.ServletUriComponentsBuilder;
 
-import javax.annotation.security.PermitAll;
 import javax.validation.Valid;
 import java.net.URI;
 
@@ -31,7 +30,6 @@ public class ResultsController {
 
     @ApiOperation(value = "Get all result", notes = "", authorizations = {@Authorization(value = "Bearer")})
     @GetMapping("results")
-    @PermitAll
     public ResponseEntity<Page<Result>> getAllResults(Pageable pageable) {
         return ResponseEntity.ok(resultsRepository.findAll(pageable));
     }
