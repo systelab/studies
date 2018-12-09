@@ -2,7 +2,6 @@ package com.systelab.studies.rest.study;
 
 import com.fasterxml.jackson.core.JsonProcessingException;
 import com.fasterxml.jackson.databind.ObjectMapper;
-import com.systelab.studies.config.authentication.TokenProvider;
 import com.systelab.studies.model.study.Result;
 import com.systelab.studies.repository.ResultRepository;
 import org.junit.Before;
@@ -40,9 +39,6 @@ public class ResultControllerTest {
 
     @Autowired
     private WebApplicationContext context;
-
-    @MockBean
-    private TokenProvider tokenProvider;
 
     @MockBean
     private ResultRepository mockStudyRepository;
@@ -122,7 +118,7 @@ public class ResultControllerTest {
 
     private Result createResult(int id) {
         Result result = new Result();
-        result.setId(new Long(id));
+        result.setId((long) id);
         result.setComments("comments");
         result.setContainerLabel("container");
         return result;

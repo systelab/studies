@@ -17,8 +17,12 @@ import java.util.List;
 @Service(value = "userService")
 public class AppUserDetailsService implements UserDetailsService {
 
+    private final UserRepository userRepository;
+
     @Autowired
-    private UserRepository userRepository;
+    public AppUserDetailsService(UserRepository userRepository) {
+        this.userRepository = userRepository;
+    }
 
     @Override
     public UserDetails loadUserByUsername(String s) throws UsernameNotFoundException {
@@ -32,7 +36,6 @@ public class AppUserDetailsService implements UserDetailsService {
         List<GrantedAuthority> authorities = new ArrayList<>();
         authorities.add(new SimpleGrantedAuthority(user.getRole().toString()));
 
-        UserDetails userDetails = new org.springframework.security.core.userdetails.User(user.getLogin(), user.getPassword(), authorities);
-        return userDetails;
+        return new org.springframework.security.core.userdetails.User(user.getLogin(), user.getPassword(), authorities);
     }
 }

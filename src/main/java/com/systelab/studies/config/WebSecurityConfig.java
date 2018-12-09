@@ -26,11 +26,14 @@ public class WebSecurityConfig extends WebSecurityConfigurerAdapter {
     @Resource(name = "userService")
     private UserDetailsService userDetailsService;
 
-    @Autowired
-    private JwtAuthenticationEntryPoint unauthorizedHandler;
+    private final JwtAuthenticationEntryPoint unauthorizedHandler;
+    private final JwtAuthenticationFilter authenticationFilter;
 
     @Autowired
-    private JwtAuthenticationFilter authenticationFilter;
+    public WebSecurityConfig(JwtAuthenticationEntryPoint unauthorizedHandler, JwtAuthenticationFilter authenticationFilter) {
+        this.unauthorizedHandler = unauthorizedHandler;
+        this.authenticationFilter = authenticationFilter;
+    }
 
     @Override
     @Bean

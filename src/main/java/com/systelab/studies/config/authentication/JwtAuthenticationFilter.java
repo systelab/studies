@@ -28,8 +28,12 @@ public class JwtAuthenticationFilter extends OncePerRequestFilter {
     @Resource(name = "userService")
     private UserDetailsService userDetailsService;
 
+    private final TokenProvider tokenProvider;
+
     @Autowired
-    private TokenProvider tokenProvider;
+    public JwtAuthenticationFilter(TokenProvider tokenProvider) {
+        this.tokenProvider = tokenProvider;
+    }
 
     @Override
     protected void doFilterInternal(HttpServletRequest req, HttpServletResponse res, FilterChain chain) throws IOException, ServletException {

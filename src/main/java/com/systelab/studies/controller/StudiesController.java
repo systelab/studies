@@ -28,26 +28,29 @@ import java.util.UUID;
 @RequestMapping(value = "/studies/v1", produces = MediaType.APPLICATION_JSON_VALUE)
 public class StudiesController {
 
-    @Autowired
-    private StudyRepository studyRepository;
+    private final StudyRepository studyRepository;
+    private final StudyResultRepository studyResultRepository;
 
     @Autowired
-    private StudyResultRepository studyResultRepository;
+    public StudiesController(StudyRepository studyRepository, StudyResultRepository studyResultRepository) {
+        this.studyRepository = studyRepository;
+        this.studyResultRepository = studyResultRepository;
+    }
 
-    @ApiOperation(value = "Get all studies", notes = "", authorizations = {@Authorization(value = "Bearer")})
+    @ApiOperation(value = "Get all studies", authorizations = {@Authorization(value = "Bearer")})
     @GetMapping("studies")
     public ResponseEntity<Page<Study>> getAllStudies(Pageable pageable) {
         return ResponseEntity.ok(studyRepository.findAll(pageable));
     }
 
-    @ApiOperation(value = "Get Study", notes = "", authorizations = {@Authorization(value = "Bearer")})
+    @ApiOperation(value = "Get Study", authorizations = {@Authorization(value = "Bearer")})
     @GetMapping("studies/{uid}")
     public ResponseEntity<Study> getStudy(@PathVariable("uid") UUID studyId) {
         return this.studyRepository.findById(studyId).map(ResponseEntity::ok).orElseThrow(() -> new StudyNotFoundException(studyId));
 
     }
 
-    @ApiOperation(value = "Create a Study", notes = "", authorizations = {@Authorization(value = "Bearer")})
+    @ApiOperation(value = "Create a Study", authorizations = {@Authorization(value = "Bearer")})
     @PostMapping("studies/study")
     public ResponseEntity<Study> createStudy(@RequestBody @ApiParam(value = "Study", required = true) @Valid Study p) {
         Study study = this.studyRepository.save(p);
@@ -55,7 +58,7 @@ public class StudiesController {
         return ResponseEntity.created(uri).body(study);
     }
 
-    @ApiOperation(value = "Create or Update (idempotent) an existing Study", notes = "", authorizations = {@Authorization(value = "Bearer")})
+    @ApiOperation(value = "Create or Update (idempotent) an existing Study", authorizations = {@Authorization(value = "Bearer")})
     @PutMapping("studies/{uid}")
     public ResponseEntity<Study> updateStudy(@PathVariable("uid") UUID studyId, @RequestBody @ApiParam(value = "Study", required = true) @Valid Study p) {
         return this.studyRepository
@@ -68,7 +71,7 @@ public class StudiesController {
                 }).orElseThrow(() -> new StudyNotFoundException(studyId));
     }
 
-    @ApiOperation(value = "Delete a Study", notes = "", authorizations = {@Authorization(value = "Bearer")})
+    @ApiOperation(value = "Delete a Study", authorizations = {@Authorization(value = "Bearer")})
     @DeleteMapping("studies/{uid}")
     public ResponseEntity<?> removeStudy(@PathVariable("uid") UUID studyId) {
         return this.studyRepository.findById(studyId)
@@ -78,7 +81,7 @@ public class StudiesController {
                 }).orElseThrow(() -> new StudyNotFoundException(studyId));
     }
 
-    @ApiOperation(value = "Create a Result to Study", notes = "", authorizations = {@Authorization(value = "Bearer")})
+    @ApiOperation(value = "Create a Result to Study", authorizations = {@Authorization(value = "Bearer")})
     @PostMapping("study/{uid}/result")
     public ResponseEntity<StudyResult> createResultStudy(@PathVariable("uid") UUID studyId, @RequestBody @ApiParam(value = "StudyResult", required = true) @Valid StudyResult p) {
         Study study = this.studyRepository.findById(studyId).orElseThrow(() -> new StudyNotFoundException(studyId));
@@ -88,7 +91,7 @@ public class StudiesController {
         return ResponseEntity.created(uri).body(p);
     }
 
-    @ApiOperation(value = "Delete a Result from Study", notes = "", authorizations = {@Authorization(value = "Bearer")})
+    @ApiOperation(value = "Delete a Result from Study", authorizations = {@Authorization(value = "Bearer")})
     @DeleteMapping("study/{uid}/result/{id}")
     public ResponseEntity<?> removeResultStudy(@PathVariable("uid") UUID studyId, @PathVariable("id") Long resultId) {
         return this.studyResultRepository.findByStudyIdAndResultId(studyId, resultId)
@@ -98,7 +101,7 @@ public class StudiesController {
                 }).orElseThrow(() -> new StudyNotFoundException(studyId));
     }
 
-    @ApiOperation(value = "Get Results from Study", notes = "", authorizations = {@Authorization(value = "Bearer")})
+    @ApiOperation(value = "Get Results from Study", authorizations = {@Authorization(value = "Bearer")})
     @GetMapping("study/{uid}/result")
     public ResponseEntity<Page<StudyResult>> getResultsStudy(@PathVariable("uid") UUID studyId, Pageable pageable) {
         return this.studyResultRepository.findByStudyId(studyId, pageable).map(ResponseEntity::ok).orElseThrow(() -> new StudyNotFoundException(studyId));

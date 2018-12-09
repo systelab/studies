@@ -2,11 +2,9 @@ package com.systelab.studies.rest.user;
 
 import com.fasterxml.jackson.core.JsonProcessingException;
 import com.fasterxml.jackson.databind.ObjectMapper;
-import com.systelab.studies.config.authentication.TokenProvider;
 import com.systelab.studies.model.user.User;
 import com.systelab.studies.model.user.UserRole;
 import com.systelab.studies.repository.UserRepository;
-import com.systelab.studies.service.AppUserDetailsService;
 import org.junit.Before;
 import org.junit.Test;
 import org.junit.runner.RunWith;
@@ -17,7 +15,6 @@ import org.springframework.data.domain.Page;
 import org.springframework.data.domain.PageImpl;
 import org.springframework.data.domain.Pageable;
 import org.springframework.http.MediaType;
-import org.springframework.security.authentication.AuthenticationManager;
 import org.springframework.security.test.context.support.WithAnonymousUser;
 import org.springframework.security.test.context.support.WithMockUser;
 import org.springframework.test.context.junit4.SpringRunner;
@@ -42,23 +39,14 @@ import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.
 @RunWith(SpringRunner.class)
 @SpringBootTest
 public class UserControllerTest {
-	
-	private MockMvc mvc;
-	
+
+    private MockMvc mvc;
+
     @Autowired
-    private WebApplicationContext context; 
+    private WebApplicationContext context;
 
     @MockBean
-    private TokenProvider tokenProvider;
-
-    @MockBean
-    private AppUserDetailsService userDetailsService;
-    
-    @MockBean
-    private UserRepository mockUserRepository;    
-    
-    @MockBean
-    private AuthenticationManager authenticationManager;    
+    private UserRepository mockUserRepository;
 
     @Before
     public void setup() {
@@ -71,57 +59,57 @@ public class UserControllerTest {
     @Test
     @WithMockUser(roles = "USER")
     public void testFindUsersAuthoritzation() throws Exception {
-    	//Mock Data to generate some users
-		List<User> users = Arrays.asList(new User(UUID.fromString("a98b8fe5-7cc5-4348-8f99-4860f5b84b13"), "Ivano", "Balic","Balic","Best"),
-		new User(UUID.fromString("a98b8fe5-7cc5-4348-8f99-4860f5b84b13"), "Jackson", "Richardson","Jackson","Rastas"));
-		Page<User> pageofUser = new PageImpl<>(users);		
-		   
-		when(mockUserRepository.findAll(isA(Pageable.class))).thenReturn(pageofUser);
-		
-	     mvc.perform(get("/studies/v1/users")
-			.header("Authorization", "Bearer 5d1103e-b3e1-4ae9-b606-46c9c1bc915a"))
-			.andExpect(content().contentType(MediaType.APPLICATION_JSON_UTF8_VALUE))
-			.andExpect(status().is2xxSuccessful())
-			.andExpect(jsonPath("$.content", hasSize(2)))
-			.andExpect(jsonPath("$.content[0].id",is("a98b8fe5-7cc5-4348-8f99-4860f5b84b13")))
-			.andExpect(jsonPath("$.content[0].login",is("Balic")));
+        //Mock Data to generate some users
+        List<User> users = Arrays.asList(new User(UUID.fromString("a98b8fe5-7cc5-4348-8f99-4860f5b84b13"), "Ivano", "Balic", "Balic", "Best"),
+                new User(UUID.fromString("a98b8fe5-7cc5-4348-8f99-4860f5b84b13"), "Jackson", "Richardson", "Jackson", "Rastas"));
+        Page<User> pageofUser = new PageImpl<>(users);
+
+        when(mockUserRepository.findAll(isA(Pageable.class))).thenReturn(pageofUser);
+
+        mvc.perform(get("/studies/v1/users")
+                .header("Authorization", "Bearer 5d1103e-b3e1-4ae9-b606-46c9c1bc915a"))
+                .andExpect(content().contentType(MediaType.APPLICATION_JSON_UTF8_VALUE))
+                .andExpect(status().is2xxSuccessful())
+                .andExpect(jsonPath("$.content", hasSize(2)))
+                .andExpect(jsonPath("$.content[0].id", is("a98b8fe5-7cc5-4348-8f99-4860f5b84b13")))
+                .andExpect(jsonPath("$.content[0].login", is("Balic")));
 
     }
 
     @Test
     @WithAnonymousUser
-    public void shouldGetUnauthorizedWithAnonymousUser() throws Exception {    	
+    public void shouldGetUnauthorizedWithAnonymousUser() throws Exception {
 
         mvc.perform(get("/studies/v1/users"))
-            .andExpect(status().isUnauthorized());
+                .andExpect(status().isUnauthorized());
     }
-    
+
     @Test
     @WithMockUser(roles = "ADMIN")
     public void testFindUser() throws Exception {
-    	Optional<User> user=  Optional.of(new User(UUID.fromString("a98b8fe5-7cc5-4348-8f99-4860f5b84b13"), "Daenerys", "Targaryen","Daenerys","Dragons"));
-		   
-		when(mockUserRepository.findById(isA(UUID.class))).thenReturn(user);
-		
-	     mvc.perform(get("/studies/v1/users/{id}","a98b8fe5-7cc5-4348-8f99-4860f5b84b13")
-			.header("Authorization", "Bearer 5d1103e-b3e1-4ae9-b606-46c9c1bc915a"))
-			.andExpect(content().contentType(MediaType.APPLICATION_JSON_UTF8_VALUE))
-			.andExpect(status().is2xxSuccessful())
-			.andExpect(jsonPath("$.id",is("a98b8fe5-7cc5-4348-8f99-4860f5b84b13")))
-			.andExpect(jsonPath("$.login",is("Daenerys")));
+        Optional<User> user = Optional.of(new User(UUID.fromString("a98b8fe5-7cc5-4348-8f99-4860f5b84b13"), "Daenerys", "Targaryen", "Daenerys", "Dragons"));
+
+        when(mockUserRepository.findById(isA(UUID.class))).thenReturn(user);
+
+        mvc.perform(get("/studies/v1/users/{id}", "a98b8fe5-7cc5-4348-8f99-4860f5b84b13")
+                .header("Authorization", "Bearer 5d1103e-b3e1-4ae9-b606-46c9c1bc915a"))
+                .andExpect(content().contentType(MediaType.APPLICATION_JSON_UTF8_VALUE))
+                .andExpect(status().is2xxSuccessful())
+                .andExpect(jsonPath("$.id", is("a98b8fe5-7cc5-4348-8f99-4860f5b84b13")))
+                .andExpect(jsonPath("$.login", is("Daenerys")));
 
     }
-    
+
     @Test
     @WithAnonymousUser
     public void testFindUserUnauthorized() throws Exception {
-    	Optional<User> user=  Optional.of(new User(UUID.fromString("a98b8fe5-7cc5-4348-8f99-4860f5b84b13"), "Daenerys", "Targaryen","Daenerys","Dragons"));
-		   
-		when(mockUserRepository.findById(isA(UUID.class))).thenReturn(user);
-		
-	     mvc.perform(get("/studies/v1/users/{id}","a98b8fe5-7cc5-4348-8f99-4860f5b84b13")
-			.header("Authorization", "Bearer 5d1103e-b3e1-4ae9-b606-46c9c1bc915a"))			
-			.andExpect(status().isUnauthorized());
+        Optional<User> user = Optional.of(new User(UUID.fromString("a98b8fe5-7cc5-4348-8f99-4860f5b84b13"), "Daenerys", "Targaryen", "Daenerys", "Dragons"));
+
+        when(mockUserRepository.findById(isA(UUID.class))).thenReturn(user);
+
+        mvc.perform(get("/studies/v1/users/{id}", "a98b8fe5-7cc5-4348-8f99-4860f5b84b13")
+                .header("Authorization", "Bearer 5d1103e-b3e1-4ae9-b606-46c9c1bc915a"))
+                .andExpect(status().isUnauthorized());
 
     }
 
@@ -129,23 +117,23 @@ public class UserControllerTest {
     @WithMockUser(roles = "ADMIN")
     public void testInsertUser() throws Exception {
 
-    	User user = new User();
+        User user = new User();
         user.setLogin("Systelab");
         user.setName("name");
         user.setSurname("surname");
         user.setPassword("Systelab");
-        user.setRole(UserRole.ADMIN);  
-    	
-        
+        user.setRole(UserRole.ADMIN);
+
+
         when(mockUserRepository.save(any())).thenReturn(user);
-        
+
         mvc.perform(post("/studies/v1/users/user")
-        		.header("Authorization", "Bearer 5d1103e-b3e1-4ae9-b606-46c9c1bc915a")
-        		.contentType(MediaType.APPLICATION_JSON).content(createUserInJson(user)))
+                .header("Authorization", "Bearer 5d1103e-b3e1-4ae9-b606-46c9c1bc915a")
+                .contentType(MediaType.APPLICATION_JSON).content(createUserInJson(user)))
                 .andExpect(status().is2xxSuccessful());
 
     }
-    
+
     @Test
     @WithMockUser(roles = "User")
     public void testInsertUserUnauthorized() throws Exception {
@@ -154,44 +142,44 @@ public class UserControllerTest {
         user.setLogin("login");
         user.setName("name");
         user.setSurname("surname");
-        user.setRole(UserRole.USER);    
-       
-        when(mockUserRepository.save(any())).thenReturn(user);   
-      
+        user.setRole(UserRole.USER);
+
+        when(mockUserRepository.save(any())).thenReturn(user);
+
         mvc.perform(post("/studies/v1/users/user")
-        		.header("Authorization", "Bearer 5d1103e-b3e1-4ae9-b606-46c9c1bc915a")
-        		.contentType(MediaType.APPLICATION_JSON).content(createUserInJson(user)))
+                .header("Authorization", "Bearer 5d1103e-b3e1-4ae9-b606-46c9c1bc915a")
+                .contentType(MediaType.APPLICATION_JSON).content(createUserInJson(user)))
                 .andExpect(status().isForbidden());
-        
+
     }
-    
+
     @Test
     @WithMockUser(roles = "ADMIN")
     public void testDeleteUser() throws Exception {
 
-    	Optional<User> user=  Optional.of(new User(UUID.fromString("a98b8fe5-7cc5-4348-8f99-4860f5b84b13"), "Nikola", "Karabtic","Leonidas","Handball"));
-		   
-		when(mockUserRepository.findById(isA(UUID.class))).thenReturn(user);
-        
-        mvc.perform(delete("/studies/v1/users/{id}","a98b8fe5-7cc5-4348-8f99-4860f5b84b13")
-        		.header("Authorization", "Bearer 5d1103e-b3e1-4ae9-b606-46c9c1bc915a"))
+        Optional<User> user = Optional.of(new User(UUID.fromString("a98b8fe5-7cc5-4348-8f99-4860f5b84b13"), "Nikola", "Karabtic", "Leonidas", "Handball"));
+
+        when(mockUserRepository.findById(isA(UUID.class))).thenReturn(user);
+
+        mvc.perform(delete("/studies/v1/users/{id}", "a98b8fe5-7cc5-4348-8f99-4860f5b84b13")
+                .header("Authorization", "Bearer 5d1103e-b3e1-4ae9-b606-46c9c1bc915a"))
                 .andExpect(status().is2xxSuccessful());
 
     }
-    
+
     @Test
     @WithMockUser(roles = "User")
     public void testDeleteUserUnauthorized() throws Exception {
 
-        mvc.perform(delete("/studies/v1/users/{id}","a98b8fe5-7cc5-4348-8f99-4860f5b84b13")
-        		.header("Authorization", "Bearer 5d1103e-b3e1-4ae9-b606-46c9c1bc915a"))
+        mvc.perform(delete("/studies/v1/users/{id}", "a98b8fe5-7cc5-4348-8f99-4860f5b84b13")
+                .header("Authorization", "Bearer 5d1103e-b3e1-4ae9-b606-46c9c1bc915a"))
                 .andExpect(status().isForbidden());
 
     }
-    
-    private static String createUserInJson (User user) throws JsonProcessingException {
-    	ObjectMapper mapper = new ObjectMapper();
-    	return mapper.writeValueAsString(user);        
+
+    private static String createUserInJson(User user) throws JsonProcessingException {
+        ObjectMapper mapper = new ObjectMapper();
+        return mapper.writeValueAsString(user);
     }
 
 }

@@ -2,7 +2,6 @@ package com.systelab.studies.rest.study;
 
 import com.fasterxml.jackson.core.JsonProcessingException;
 import com.fasterxml.jackson.databind.ObjectMapper;
-import com.systelab.studies.config.authentication.TokenProvider;
 import com.systelab.studies.model.study.Study;
 import com.systelab.studies.model.study.StudyType;
 import com.systelab.studies.repository.StudyRepository;
@@ -42,9 +41,6 @@ public class StudyControllerTest {
 
     @Autowired
     private WebApplicationContext context;
-
-    @MockBean
-    private TokenProvider tokenProvider;
 
     @MockBean
     private StudyRepository mockStudyRepository;
