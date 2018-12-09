@@ -50,8 +50,8 @@ public class Study extends ModelBase {
             inverseJoinColumns = @JoinColumn(table = "test", name = "test_id", referencedColumnName = "testid"))
     private Set<Test> tests = new HashSet<>();
 
+    @JsonIgnore
     @OneToMany( mappedBy="study" )
-    @JsonBackReference(value="study")
     private Set<StudyResult> studyResult;
 
     @ApiModelProperty(notes = "YYYY-MM-DD")
