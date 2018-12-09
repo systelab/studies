@@ -54,13 +54,6 @@ public class Study extends ModelBase {
     @JsonBackReference(value="study")
     private Set<StudyResult> studyResult;
 
-    @ManyToMany(fetch = FetchType.LAZY, cascade = CascadeType.ALL)
-    @JsonIgnore
-    @JoinTable(name = "study_results",
-            joinColumns = @JoinColumn(table = "study", name = "study_id", referencedColumnName = "id"),
-            inverseJoinColumns = @JoinColumn(table = "result", name = "result_id", referencedColumnName = "id"))
-    private Set<Result> results= new HashSet<>();
-
     @ApiModelProperty(notes = "YYYY-MM-DD")
     private LocalDate dateFrom;
 
