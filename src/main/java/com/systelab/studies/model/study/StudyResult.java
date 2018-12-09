@@ -12,28 +12,31 @@ import javax.validation.constraints.Size;
 @Entity
 @Data
 @NoArgsConstructor
-@AllArgsConstructor
-@Table(name = "studyresult",
-        uniqueConstraints = { @UniqueConstraint(columnNames = { "result_id", "study_id" }) })
+@Table(name = "studyresult")
 public class StudyResult {
 
-    @Id
-    @GeneratedValue
-    @ApiModelProperty(notes = "The database generated  ID")
-    protected Long id;
-
-    @ManyToOne
-    @JoinColumn(name = "result_id")
-    private Result result;
+    @EmbeddedId
+    private StudyResultId id;
 
     @JsonIgnore
     @ManyToOne
-    @JoinColumn(name = "study_id")
+    @MapsId("studyId")
     private Study study;
+
+    @ManyToOne
+    @MapsId("resultId")
+    private Result result;
 
     private boolean isOmmited;
 
     @Size(min = 1, max = 255)
     private String comments;
+
+    public StudyResult(Study b, Result p) {
+        // create primary key
+        this.id = new StudyResultId(b.getId(), p.getId());
+        this.study = b;
+        this.result = p;
+    }
 
 }

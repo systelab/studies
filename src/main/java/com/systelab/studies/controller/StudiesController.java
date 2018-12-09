@@ -1,7 +1,9 @@
 package com.systelab.studies.controller;
 
+import com.systelab.studies.model.study.Result;
 import com.systelab.studies.model.study.Study;
 import com.systelab.studies.model.study.StudyResult;
+import com.systelab.studies.model.study.StudyResultDTO;
 import com.systelab.studies.repository.StudyNotFoundException;
 import com.systelab.studies.repository.StudyRepository;
 import com.systelab.studies.repository.StudyResultRepository;
@@ -83,12 +85,15 @@ public class StudiesController {
 
     @ApiOperation(value = "Create a Result to Study", authorizations = {@Authorization(value = "Bearer")})
     @PostMapping("study/{uid}/result")
-    public ResponseEntity<StudyResult> createResultStudy(@PathVariable("uid") UUID studyId, @RequestBody @ApiParam(value = "StudyResult", required = true) @Valid StudyResult p) {
+    public ResponseEntity<StudyResult> createResultStudy(@PathVariable("uid") UUID studyId, @RequestBody @ApiParam(value = "StudyResult", required = true) @Valid StudyResultDTO dto) {
         Study study = this.studyRepository.findById(studyId).orElseThrow(() -> new StudyNotFoundException(studyId));
-        p.setStudy(study);
-        p = studyResultRepository.save(p);
-        URI uri = MvcUriComponentsBuilder.fromController(getClass()).path("/{id}").buildAndExpand(p.getId()).toUri();
-        return ResponseEntity.created(uri).body(p);
+        Result result=new Result();
+        result.setId(dto.getResultId());
+        StudyResult resultForStudy=new StudyResult(study,result);
+        resultForStudy.setOmmited(dto.isOmmited());
+        resultForStudy.setComments(dto.getComments());
+        resultForStudy = studyResultRepository.save(resultForStudy);
+        return ResponseEntity.ok().body(resultForStudy);
     }
 
     @ApiOperation(value = "Delete a Result from Study", authorizations = {@Authorization(value = "Bearer")})
