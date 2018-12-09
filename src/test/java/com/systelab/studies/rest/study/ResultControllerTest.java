@@ -3,9 +3,8 @@ package com.systelab.studies.rest.study;
 import com.fasterxml.jackson.core.JsonProcessingException;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.systelab.studies.config.TokenProvider;
-import com.systelab.studies.model.study.Study;
-import com.systelab.studies.model.study.StudyType;
-import com.systelab.studies.repository.StudyRepository;
+import com.systelab.studies.model.study.Result;
+import com.systelab.studies.repository.ResultRepository;
 import org.junit.Before;
 import org.junit.Test;
 import org.junit.runner.RunWith;
@@ -25,7 +24,6 @@ import org.springframework.web.context.WebApplicationContext;
 import java.util.Arrays;
 import java.util.List;
 import java.util.Optional;
-import java.util.UUID;
 
 import static org.hamcrest.Matchers.is;
 import static org.mockito.ArgumentMatchers.any;
@@ -37,7 +35,7 @@ import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.
 
 @RunWith(SpringRunner.class)
 @SpringBootTest
-public class StudyControllerTest {
+public class ResultControllerTest {
     private MockMvc mvc;
 
     @Autowired
@@ -47,7 +45,7 @@ public class StudyControllerTest {
     private TokenProvider tokenProvider;
 
     @MockBean
-    private StudyRepository mockStudyRepository;
+    private ResultRepository mockStudyRepository;
 
 
     @Before
@@ -60,75 +58,73 @@ public class StudyControllerTest {
 
     @Test
     @WithMockUser(roles = "USER")
-    public void testGetAllStudy() throws Exception {
-        Study studyA = createStudy("Study A");
-        Study studyB = createStudy("Study B");
-        List<Study> studies = Arrays.asList(studyA,
-                studyB);
+    public void testGetAllResults() throws Exception {
+        Result resultA = createResult(1234);
+        Result resultB = createResult(5678);
+        List<Result> results = Arrays.asList(resultA,
+                resultB);
 
-        Page<Study> pageofStudy = new PageImpl<>(studies);
+        Page<Result> pageofResults = new PageImpl<>(results);
 
-        when(mockStudyRepository.findAll(isA(Pageable.class))).thenReturn(pageofStudy);
+        when(mockStudyRepository.findAll(isA(Pageable.class))).thenReturn(pageofResults);
 
-        mvc.perform(get("/studies/v1/studies")
+        mvc.perform(get("/studies/v1/results")
                 .header("Authorization", "Bearer 5d1103e-b3e1-4ae9-b606-46c9c1bc915a"))
                 .andExpect(content().contentType(MediaType.APPLICATION_JSON_UTF8_VALUE))
                 .andExpect(status().is2xxSuccessful())
-                .andExpect(jsonPath("$.content[1].id", is("a98b8fe5-7cc5-4348-8f99-4860f5b84b13")))
-                .andExpect(jsonPath("$.content[0].description", is("Study A")));
+                .andExpect(jsonPath("$.content[1].id", is(5678)))
+                .andExpect(jsonPath("$.content[0].id", is(1234)));
     }
 
     @Test
     @WithMockUser(roles = "USER")
-    public void testGetStudy() throws Exception {
-        Optional<Study> patient = Optional.of(createStudy("Study A"));
+    public void testGetResult() throws Exception {
+        Optional<Result> result = Optional.of(createResult(1234));
 
-        when(mockStudyRepository.findById(isA(UUID.class))).thenReturn(patient);
+        when(mockStudyRepository.findById(isA(Long.class))).thenReturn(result);
 
-        mvc.perform(get("/studies/v1/studies/{id}", "a98b8fe5-7cc5-4348-8f99-4860f5b84b13")
+        mvc.perform(get("/studies/v1/results/{id}", "1234")
                 .header("Authorization", "Bearer 5d1103e-b3e1-4ae9-b606-46c9c1bc915a"))
                 .andExpect(content().contentType(MediaType.APPLICATION_JSON_UTF8_VALUE))
                 .andExpect(status().is2xxSuccessful())
-                .andExpect(jsonPath("$.id", is("a98b8fe5-7cc5-4348-8f99-4860f5b84b13")))
-                .andExpect(jsonPath("$.description", is("Study A")));
+                .andExpect(jsonPath("$.id", is(1234)))
+                .andExpect(jsonPath("$.comments", is("comments")));
     }
 
     @Test
     @WithMockUser(roles = "ADMIN")
-    public void testAddStudy() throws Exception {
-        Study study = createStudy("A");
+    public void testAddResult() throws Exception {
+        Result result = createResult(1234);
 
-        when(mockStudyRepository.save(any())).thenReturn(study);
+        when(mockStudyRepository.save(any())).thenReturn(result);
 
-        mvc.perform(post("/studies/v1/studies/study")
+        mvc.perform(post("/studies/v1/results/result")
                 .header("Authorization", "Bearer 5d1103e-b3e1-4ae9-b606-46c9c1bc915a")
-                .contentType(MediaType.APPLICATION_JSON).content(createStudyInJson(study)))
+                .contentType(MediaType.APPLICATION_JSON).content(createResultInJson(result)))
                 .andExpect(status().is2xxSuccessful());
-
     }
 
     @Test
     @WithMockUser(roles = "User")
     public void testDeleteStudy() throws Exception {
-        Optional<Study> study = Optional.of(createStudy("Study A"));
-        when(mockStudyRepository.findById(isA(UUID.class))).thenReturn(study);
+        Optional<Result> result = Optional.of(createResult(1234));
+        when(mockStudyRepository.findById(isA(Long.class))).thenReturn(result);
 
-        mvc.perform(delete("/studies/v1/studies/{1}", "a98b8fe5-7cc5-4348-8f99-4860f5b84b13")
+        mvc.perform(delete("/studies/v1/results/{1}", "1234")
                 .header("Authorization", "Bearer 5d1103e-b3e1-4ae9-b606-46c9c1bc915a"))
                 .andExpect(status().is2xxSuccessful());
-
     }
 
-    private static String createStudyInJson(Study study) throws JsonProcessingException {
+    private static String createResultInJson(Result result) throws JsonProcessingException {
         ObjectMapper mapper = new ObjectMapper();
-        return mapper.writeValueAsString(study);
+        return mapper.writeValueAsString(result);
     }
 
-    private Study createStudy(String studyName) {
-        Study study = new Study();
-        study.setId(UUID.fromString("a98b8fe5-7cc5-4348-8f99-4860f5b84b13"));
-        study.setType(StudyType.REAGENT_LOT_CONVERSION_TOOL);
-        study.setDescription(studyName);
-        return study;
+    private Result createResult(int id) {
+        Result result = new Result();
+        result.setId(new Long(id));
+        result.setComments("comments");
+        result.setContainerLabel("container");
+        return result;
     }
 }

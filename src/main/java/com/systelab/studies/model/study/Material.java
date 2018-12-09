@@ -10,13 +10,14 @@ import javax.persistence.GeneratedValue;
 import javax.persistence.Id;
 import javax.persistence.Table;
 import javax.validation.constraints.Size;
+import java.time.LocalDate;
 
 @Entity
 @Data
 @NoArgsConstructor
 @AllArgsConstructor
-@Table(name = "instrument")
-public class Instrument {
+@Table(name = "material")
+public class Material {
 
     @Id
     @GeneratedValue
@@ -24,6 +25,13 @@ public class Instrument {
     protected Long id;
 
     @Size(min = 1, max = 255)
-    private String description;
+    private String name;
 
+    private MaterialType type;
+
+    @Size(min = 1, max = 255)
+    private String lotNumber;
+
+    @ApiModelProperty(notes = "YYYY-MM-DD")
+    private LocalDate expirationDate;
 }

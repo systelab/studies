@@ -12,16 +12,17 @@ import javax.validation.constraints.Size;
 @Data
 @NoArgsConstructor
 @AllArgsConstructor
-@Table(name = "test")
-public class Test {
+@Table(name = "connection")
+public class Connection {
 
     @Id
     @GeneratedValue
     @ApiModelProperty(notes = "The database generated  ID")
-    @Column( name = "testid")
+    @Column( name = "connectionid" )
     protected Long id;
 
+    @Column( name = "connectiondescription" )
     @Size(min = 1, max = 255)
-    @Column( name = "testdescription")
     private String description;
+
 }

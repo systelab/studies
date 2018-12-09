@@ -2,8 +2,10 @@ package com.systelab.studies.controller;
 
 import com.systelab.studies.model.study.Result;
 import com.systelab.studies.model.study.Study;
+import com.systelab.studies.model.study.StudyResult;
 import com.systelab.studies.repository.StudyNotFoundException;
 import com.systelab.studies.repository.StudyRepository;
+import com.systelab.studies.repository.StudyResultRepository;
 import io.swagger.annotations.Api;
 import io.swagger.annotations.ApiOperation;
 import io.swagger.annotations.ApiParam;
@@ -31,6 +33,9 @@ public class StudiesController {
 
     @Autowired
     private StudyRepository studyRepository;
+
+    @Autowired
+    private StudyResultRepository studyResultRepository;
 
     @ApiOperation(value = "Get all studies", notes = "", authorizations = {@Authorization(value = "Bearer")})
     @GetMapping("studies")
@@ -77,21 +82,30 @@ public class StudiesController {
                 }).orElseThrow(() -> new StudyNotFoundException(studyId));
     }
 
-    @ApiOperation(value = "Get Results", notes = "", authorizations = {@Authorization(value = "Bearer")})
-    @GetMapping("studies/{uid}/results")
-    public ResponseEntity<Set<Result>> getStudyResults(@PathVariable("uid") UUID studyId) {
-        return this.studyRepository.findById(studyId).map((study) -> ResponseEntity.ok(study.getResults())).orElseThrow(() -> new StudyNotFoundException(studyId));
+    @ApiOperation(value = "Create a Result to Study", notes = "", authorizations = {@Authorization(value = "Bearer")})
+    @PostMapping("study/{uid}/result")
+    public ResponseEntity<StudyResult> createResultStudy(@PathVariable("uid") UUID studyId, @RequestBody @ApiParam(value = "StudyResult", required = true) @Valid StudyResult p) {
+        Study study = this.studyRepository.findById(studyId).orElseThrow(() -> new StudyNotFoundException(studyId));
+        p.setStudy(study);
+        p = studyResultRepository.save(p);
+        URI uri = MvcUriComponentsBuilder.fromController(getClass()).path("/{id}").buildAndExpand(p.getId()).toUri();
+        return ResponseEntity.created(uri).body(p);
     }
 
-    @ApiOperation(value = "Add Results", notes = "", authorizations = {@Authorization(value = "Bearer")})
-    @PostMapping("studies/{uid}/results")
-    public ResponseEntity<Set<Result>> addStudyResults(@PathVariable("uid") UUID studyId, @RequestBody @ApiParam(required = true) @Valid Set<Result> results) {
+    @ApiOperation(value = "Delete a Result from Study", notes = "", authorizations = {@Authorization(value = "Bearer")})
+    @DeleteMapping("study/{uid}/result/{id}")
+    public ResponseEntity<?> removeResultStudy(@PathVariable("uid") UUID studyId, @PathVariable("id") Long resultId) {
+        return this.studyResultRepository.findByStudyIdAndResultId(studyId,resultId)
+                .map(c -> {
+                    studyResultRepository.delete(c);
+                    return ResponseEntity.noContent().build();
+                }).orElseThrow(() -> new StudyNotFoundException(studyId));
+    }
 
-        Study study = this.studyRepository.findById(studyId).orElseThrow(() -> new StudyNotFoundException(studyId));
+    @ApiOperation(value = "Get Results from Study", notes = "", authorizations = {@Authorization(value = "Bearer")})
+    @GetMapping("study/{uid}/result")
+    public ResponseEntity<Page<StudyResult>> getResultsStudy(@PathVariable("uid") UUID studyId, Pageable pageable) {
+        return this.studyResultRepository.findByStudyId(studyId,pageable).map(ResponseEntity::ok).orElseThrow(() -> new StudyNotFoundException(studyId));
 
-        study.getResults().addAll(results);
-        this.studyRepository.save(study);
-        URI selfLink = URI.create(ServletUriComponentsBuilder.fromCurrentRequest().toUriString());
-        return ResponseEntity.created(selfLink).body(results);
     }
 }

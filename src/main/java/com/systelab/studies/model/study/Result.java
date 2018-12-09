@@ -23,20 +23,25 @@ public class Result {
     private String containerLabel;
 
     @ManyToOne
-    @JoinColumn(name = "test_id")
+    @JoinColumn(name = "testid")
     private Test test;
 
     @ManyToOne
-    @JoinColumn(name = "instrument_id")
-    private Instrument instrument;
+    @JoinColumn(name = "connectionid")
+    private Connection connection;
 
     private Double value;
-    private String user;
+    private String resultUser;
     private Instant resultDate;
-
     private String instrumentAlarms;
     private String pseudoCodeValue;
     private InstrumentTestStatus status;
+
+    @ManyToOne
+    @JoinColumn(name = "material_id")
+    //TODO change to LIST
+    private Material material;
+
     private String comments;
 
 }
