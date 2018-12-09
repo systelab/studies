@@ -1,5 +1,6 @@
 package com.systelab.studies.model.study;
 
+import com.fasterxml.jackson.annotation.JsonIgnore;
 import io.swagger.annotations.ApiModelProperty;
 import lombok.AllArgsConstructor;
 import lombok.Data;
@@ -25,6 +26,7 @@ public class StudyResult {
     @JoinColumn(name = "result_id")
     private Result result;
 
+    @JsonIgnore
     @ManyToOne
     @JoinColumn(name = "study_id")
     private Study study;
