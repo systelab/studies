@@ -1,5 +1,6 @@
 package com.systelab.studies.controller;
 
+import com.systelab.studies.model.study.Result;
 import com.systelab.studies.model.study.Study;
 import com.systelab.studies.model.study.StudyResult;
 import com.systelab.studies.repository.StudyNotFoundException;
@@ -21,6 +22,7 @@ import org.springframework.web.servlet.support.ServletUriComponentsBuilder;
 import javax.annotation.security.PermitAll;
 import javax.validation.Valid;
 import java.net.URI;
+import java.util.Set;
 import java.util.UUID;
 
 @Api(value = "Study", description = "API for Study management", tags = {"Study"})
@@ -57,7 +59,6 @@ public class StudiesController {
         return ResponseEntity.created(uri).body(study);
     }
 
-
     @ApiOperation(value = "Create or Update (idempotent) an existing Study", notes = "", authorizations = {@Authorization(value = "Bearer")})
     @PutMapping("studies/{uid}")
     public ResponseEntity<Study> updateStudy(@PathVariable("uid") UUID studyId, @RequestBody @ApiParam(value = "Study", required = true) @Valid Study p) {
@@ -70,7 +71,6 @@ public class StudiesController {
                     return ResponseEntity.created(selfLink).body(study);
                 }).orElseThrow(() -> new StudyNotFoundException(studyId));
     }
-
 
     @ApiOperation(value = "Delete a Study", notes = "", authorizations = {@Authorization(value = "Bearer")})
     @DeleteMapping("studies/{uid}")
@@ -108,5 +108,4 @@ public class StudiesController {
         return this.studyResultRepository.findByStudyId(studyId,pageable).map(ResponseEntity::ok).orElseThrow(() -> new StudyNotFoundException(studyId));
 
     }
-
 }
