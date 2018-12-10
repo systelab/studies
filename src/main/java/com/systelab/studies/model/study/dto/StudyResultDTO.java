@@ -1,4 +1,4 @@
-package com.systelab.studies.model.study;
+package com.systelab.studies.model.study.dto;
 
 import lombok.AllArgsConstructor;
 import lombok.Data;

@@ -3,7 +3,7 @@ package com.systelab.studies.controller;
 import com.systelab.studies.model.study.Result;
 import com.systelab.studies.model.study.Study;
 import com.systelab.studies.model.study.StudyResult;
-import com.systelab.studies.model.study.StudyResultDTO;
+import com.systelab.studies.model.study.dto.StudyResultDTO;
 import com.systelab.studies.repository.StudyNotFoundException;
 import com.systelab.studies.repository.StudyRepository;
 import com.systelab.studies.repository.StudyResultRepository;
