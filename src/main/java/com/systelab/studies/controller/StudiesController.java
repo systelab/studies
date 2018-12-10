@@ -54,20 +54,19 @@ public class StudiesController {
 
     @ApiOperation(value = "Create a Study", authorizations = {@Authorization(value = "Bearer")})
     @PostMapping("studies/study")
-    public ResponseEntity<Study> createStudy(@RequestBody @ApiParam(value = "Study", required = true) @Valid Study p) {
-        Study study = this.studyRepository.save(p);
+    public ResponseEntity<Study> createStudy(@RequestBody @ApiParam(value = "Study", required = true) @Valid Study s) {
+        Study study = this.studyRepository.save(s);
         URI uri = MvcUriComponentsBuilder.fromController(getClass()).path("/{id}").buildAndExpand(study.getId()).toUri();
         return ResponseEntity.created(uri).body(study);
     }
 
     @ApiOperation(value = "Create or Update (idempotent) an existing Study", authorizations = {@Authorization(value = "Bearer")})
     @PutMapping("studies/{uid}")
-    public ResponseEntity<Study> updateStudy(@PathVariable("uid") UUID studyId, @RequestBody @ApiParam(value = "Study", required = true) @Valid Study p) {
-        return this.studyRepository
-                .findById(studyId)
+    public ResponseEntity<Study> updateStudy(@PathVariable("uid") UUID studyId, @RequestBody @ApiParam(value = "Study", required = true) @Valid Study s) {
+        return this.studyRepository.findById(studyId)
                 .map(existing -> {
-                    p.setId(studyId);
-                    Study study = this.studyRepository.save(p);
+                    s.setId(studyId);
+                    Study study = this.studyRepository.save(s);
                     URI selfLink = URI.create(ServletUriComponentsBuilder.fromCurrentRequest().toUriString());
                     return ResponseEntity.created(selfLink).body(study);
                 }).orElseThrow(() -> new StudyNotFoundException(studyId));
@@ -77,8 +76,8 @@ public class StudiesController {
     @DeleteMapping("studies/{uid}")
     public ResponseEntity<?> removeStudy(@PathVariable("uid") UUID studyId) {
         return this.studyRepository.findById(studyId)
-                .map(c -> {
-                    studyRepository.delete(c);
+                .map(study -> {
+                    studyRepository.delete(study);
                     return ResponseEntity.noContent().build();
                 }).orElseThrow(() -> new StudyNotFoundException(studyId));
     }
@@ -87,9 +86,9 @@ public class StudiesController {
     @PostMapping("study/{uid}/result")
     public ResponseEntity<StudyResult> createResultStudy(@PathVariable("uid") UUID studyId, @RequestBody @ApiParam(value = "StudyResult", required = true) @Valid StudyResultDTO dto) {
         Study study = this.studyRepository.findById(studyId).orElseThrow(() -> new StudyNotFoundException(studyId));
-        Result result=new Result();
+        Result result = new Result();
         result.setId(dto.getResultId());
-        StudyResult resultForStudy=new StudyResult(study,result);
+        StudyResult resultForStudy = new StudyResult(study, result);
         resultForStudy.setOmmited(dto.isOmmited());
         resultForStudy.setComments(dto.getComments());
         resultForStudy = studyResultRepository.save(resultForStudy);
@@ -100,8 +99,8 @@ public class StudiesController {
     @DeleteMapping("study/{uid}/result/{id}")
     public ResponseEntity<?> removeResultStudy(@PathVariable("uid") UUID studyId, @PathVariable("id") Long resultId) {
         return this.studyResultRepository.findByStudyIdAndResultId(studyId, resultId)
-                .map(c -> {
-                    studyResultRepository.delete(c);
+                .map(result -> {
+                    studyResultRepository.delete(result);
                     return ResponseEntity.noContent().build();
                 }).orElseThrow(() -> new StudyNotFoundException(studyId));
     }

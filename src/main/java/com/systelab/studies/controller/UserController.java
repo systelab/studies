@@ -87,8 +87,8 @@ public class UserController {
     @PreAuthorize("hasAuthority('ADMIN')")
     public ResponseEntity<?> removeUser(@PathVariable("uid") UUID userId) {
         return this.userRepository.findById(userId)
-                .map(u -> {
-                    userRepository.delete(u);
+                .map(user -> {
+                    userRepository.delete(user);
                     return ResponseEntity.noContent().build();
                 }).orElseThrow(() -> new UserNotFoundException(userId));
     }

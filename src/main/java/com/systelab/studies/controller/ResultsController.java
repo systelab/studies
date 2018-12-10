@@ -47,20 +47,19 @@ public class ResultsController {
 
     @ApiOperation(value = "Create a Result", authorizations = {@Authorization(value = "Bearer")})
     @PostMapping("results/result")
-    public ResponseEntity<Result> createResult(@RequestBody @ApiParam(value = "Result", required = true) @Valid Result p) {
-        Result result = this.resultsRepository.save(p);
+    public ResponseEntity<Result> createResult(@RequestBody @ApiParam(value = "Result", required = true) @Valid Result r) {
+        Result result = this.resultsRepository.save(r);
         URI uri = MvcUriComponentsBuilder.fromController(getClass()).path("/{id}").buildAndExpand(result.getId()).toUri();
         return ResponseEntity.created(uri).body(result);
     }
 
     @ApiOperation(value = "Create or Update (idempotent) an existing Result", authorizations = {@Authorization(value = "Bearer")})
     @PutMapping("results/{id}")
-    public ResponseEntity<Result> updateResult(@PathVariable("id") Long resultId, @RequestBody @ApiParam(value = "Result", required = true) @Valid Result p) {
-        return this.resultsRepository
-                .findById(resultId)
+    public ResponseEntity<Result> updateResult(@PathVariable("id") Long resultId, @RequestBody @ApiParam(value = "Result", required = true) @Valid Result r) {
+        return this.resultsRepository.findById(resultId)
                 .map(existing -> {
-                    p.setId(resultId);
-                    Result result = this.resultsRepository.save(p);
+                    r.setId(resultId);
+                    Result result = this.resultsRepository.save(r);
                     URI selfLink = URI.create(ServletUriComponentsBuilder.fromCurrentRequest().toUriString());
                     return ResponseEntity.created(selfLink).body(result);
                 }).orElseThrow(() -> new ResultNotFoundException(resultId));
@@ -70,8 +69,8 @@ public class ResultsController {
     @DeleteMapping("results/{id}")
     public ResponseEntity<?> removeResult(@PathVariable("id") Long resultId) {
         return this.resultsRepository.findById(resultId)
-                .map(c -> {
-                    resultsRepository.delete(c);
+                .map(result -> {
+                    resultsRepository.delete(result);
                     return ResponseEntity.noContent().build();
                 }).orElseThrow(() -> new ResultNotFoundException(resultId));
     }
