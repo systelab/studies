@@ -1,6 +1,5 @@
 package com.systelab.studies.service;
 
-import com.systelab.studies.model.user.User;
 import com.systelab.studies.repository.UserRepository;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.security.core.GrantedAuthority;
@@ -17,22 +16,20 @@ import java.util.List;
 @Service(value = "userService")
 public class AppUserDetailsService implements UserDetailsService {
 
+    private final UserRepository userRepository;
+
     @Autowired
-    private UserRepository userRepository;
+    public AppUserDetailsService(UserRepository userRepository) {
+        this.userRepository = userRepository;
+    }
 
     @Override
     public UserDetails loadUserByUsername(String s) throws UsernameNotFoundException {
-        User user = userRepository.findByLogin(s);
-
-
-        if(user == null) {
-            throw new UsernameNotFoundException(String.format("The username %s doesn't exist", s));
-        }
-
-        List<GrantedAuthority> authorities = new ArrayList<>();
-        authorities.add(new SimpleGrantedAuthority(user.getRole().toString()));
-
-        UserDetails userDetails = new org.springframework.security.core.userdetails.User(user.getLogin(), user.getPassword(), authorities);
-        return userDetails;
+       return userRepository.findByLogin(s).map(user -> {
+                    List<GrantedAuthority> authorities = new ArrayList<>();
+                    authorities.add(new SimpleGrantedAuthority(user.getRole().toString()));
+                    return new org.springframework.security.core.userdetails.User(user.getLogin(), user.getPassword(), authorities);
+                }
+        ).orElseThrow(() -> new UsernameNotFoundException(String.format("The username %s doesn't exist", s)));
     }
 }

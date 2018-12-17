@@ -1,7 +1,7 @@
 package com.systelab.studies.controller;
 
 import com.systelab.studies.Constants;
-import com.systelab.studies.config.TokenProvider;
+import com.systelab.studies.config.authentication.TokenProvider;
 import com.systelab.studies.model.user.User;
 import com.systelab.studies.repository.UserNotFoundException;
 import com.systelab.studies.repository.UserRepository;
@@ -19,11 +19,10 @@ import org.springframework.security.authentication.AuthenticationManager;
 import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
 import org.springframework.security.core.Authentication;
 import org.springframework.security.core.context.SecurityContextHolder;
-import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
+import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.web.bind.annotation.*;
 import org.springframework.web.servlet.mvc.method.annotation.MvcUriComponentsBuilder;
 
-import javax.annotation.security.PermitAll;
 import javax.validation.Valid;
 import java.net.URI;
 import java.util.UUID;
@@ -34,61 +33,62 @@ import java.util.UUID;
 @RequestMapping(value = "/studies/v1", produces = MediaType.APPLICATION_JSON_VALUE)
 public class UserController {
 
-    @Autowired
-    private UserRepository userRepository;
+    private final UserRepository userRepository;
+    private final AuthenticationManager authenticationManager;
+    private final TokenProvider tokenProvider;
+    private final PasswordEncoder passwordEncoder;
 
     @Autowired
-    private AuthenticationManager authenticationManager;
+    public UserController(UserRepository userRepository, AuthenticationManager authenticationManager, TokenProvider tokenProvider, PasswordEncoder passwordEncoder) {
+        this.userRepository = userRepository;
+        this.authenticationManager = authenticationManager;
+        this.tokenProvider = tokenProvider;
+        this.passwordEncoder = passwordEncoder;
+    }
 
-    @Autowired
-    private TokenProvider jwtTokenUtil;
-
-    @Autowired
-    private BCryptPasswordEncoder bCryptPasswordEncoder;
-
-    @ApiOperation(value = "User Login", notes = "")
+    @ApiOperation(value = "User Login")
     @PostMapping(value = "users/login", consumes = MediaType.APPLICATION_FORM_URLENCODED_VALUE)
-    @PermitAll
     public ResponseEntity authenticateUser(@RequestParam("login") String login, @RequestParam("password") String password) throws SecurityException {
 
-        final Authentication authentication = authenticationManager.authenticate(
-                new UsernamePasswordAuthenticationToken(login, password));
+        final Authentication authentication = authenticationManager.authenticate(new UsernamePasswordAuthenticationToken(login, password));
         SecurityContextHolder.getContext().setAuthentication(authentication);
-        final String token = jwtTokenUtil.generateToken(authentication);
+        final String token = tokenProvider.generateToken(authentication);
         return ResponseEntity.ok().header(Constants.HEADER_STRING, "Bearer " + token).build();
     }
 
-    @ApiOperation(value = "Get all Users", notes = "", authorizations = {@Authorization(value = "Bearer")})
+    @ApiOperation(value = "Get all Users", authorizations = {@Authorization(value = "Bearer")})
     @GetMapping("users")
     public ResponseEntity<Page<User>> getAllUsers(Pageable pageable) {
         return ResponseEntity.ok(userRepository.findAll(pageable));
     }
 
-    @ApiOperation(value = "Get User", notes = "", authorizations = {@Authorization(value = "Bearer")})
+    @ApiOperation(value = "Get User", authorizations = {@Authorization(value = "Bearer")})
     @GetMapping("users/{uid}")
     public ResponseEntity<User> getUser(@PathVariable("uid") UUID userId) {
-        return this.userRepository.findById(userId).map(ResponseEntity::ok).orElseThrow(() -> new UserNotFoundException(userId));
+        return this.userRepository.findById(userId)
+                .map(ResponseEntity::ok)
+                .orElseThrow(() -> new UserNotFoundException(userId));
     }
 
-    @ApiOperation(value = "Create a User", notes = "", authorizations = {@Authorization(value = "Bearer")})
+    @ApiOperation(value = "Create a User", authorizations = {@Authorization(value = "Bearer")})
     @PostMapping("users/user")
-    @PreAuthorize("hasAuthority('ROLE_ADMIN')")
+    @PreAuthorize("hasAuthority('ADMIN')")
     public ResponseEntity<User> createUser(@RequestBody @ApiParam(value = "User", required = true) @Valid User u) {
         u.setId(null);
-        u.setPassword(bCryptPasswordEncoder.encode(u.getPassword()));
+        u.setPassword(passwordEncoder.encode(u.getPassword()));
         User user = this.userRepository.save(u);
 
         URI uri = MvcUriComponentsBuilder.fromController(getClass()).path("/{id}").buildAndExpand(user.getId()).toUri();
         return ResponseEntity.created(uri).body(user);
     }
 
-    @ApiOperation(value = "Delete a User", notes = "", authorizations = {@Authorization(value = "Bearer")})
+    @ApiOperation(value = "Delete a User", authorizations = {@Authorization(value = "Bearer")})
     @DeleteMapping("users/{uid}")
-    @PreAuthorize("hasAuthority('ROLE_ADMIN')")
+    @PreAuthorize("hasAuthority('ADMIN')")
     public ResponseEntity<?> removeUser(@PathVariable("uid") UUID userId) {
         return this.userRepository.findById(userId)
-                .map(u -> {
-                    userRepository.delete(u);
+                .map(user -> {
+                    userRepository.delete(user);
                     return ResponseEntity.noContent().build();
                 }).orElseThrow(() -> new UserNotFoundException(userId));
     }

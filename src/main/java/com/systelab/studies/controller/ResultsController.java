@@ -16,7 +16,6 @@ import org.springframework.web.bind.annotation.*;
 import org.springframework.web.servlet.mvc.method.annotation.MvcUriComponentsBuilder;
 import org.springframework.web.servlet.support.ServletUriComponentsBuilder;
 
-import javax.annotation.security.PermitAll;
 import javax.validation.Valid;
 import java.net.URI;
 
@@ -26,52 +25,52 @@ import java.net.URI;
 @RequestMapping(value = "/studies/v1", produces = MediaType.APPLICATION_JSON_VALUE)
 public class ResultsController {
 
-    @Autowired
-    private ResultRepository resultsRepository;
+    private final ResultRepository resultsRepository;
 
-    @ApiOperation(value = "Get all result", notes = "", authorizations = {@Authorization(value = "Bearer")})
+    @Autowired
+    public ResultsController(ResultRepository resultsRepository) {
+        this.resultsRepository = resultsRepository;
+    }
+
+    @ApiOperation(value = "Get all result", authorizations = {@Authorization(value = "Bearer")})
     @GetMapping("results")
-    @PermitAll
     public ResponseEntity<Page<Result>> getAllResults(Pageable pageable) {
         return ResponseEntity.ok(resultsRepository.findAll(pageable));
     }
 
-    @ApiOperation(value = "Get Result", notes = "", authorizations = {@Authorization(value = "Bearer")})
+    @ApiOperation(value = "Get Result", authorizations = {@Authorization(value = "Bearer")})
     @GetMapping("results/{id}")
     public ResponseEntity<Result> getResult(@PathVariable("id") Long resultId) {
         return this.resultsRepository.findById(resultId).map(ResponseEntity::ok).orElseThrow(() -> new ResultNotFoundException(resultId));
 
     }
 
-    @ApiOperation(value = "Create a Result", notes = "", authorizations = {@Authorization(value = "Bearer")})
+    @ApiOperation(value = "Create a Result", authorizations = {@Authorization(value = "Bearer")})
     @PostMapping("results/result")
-    public ResponseEntity<Result> createResult(@RequestBody @ApiParam(value = "Result", required = true) @Valid Result p) {
-        Result result = this.resultsRepository.save(p);
+    public ResponseEntity<Result> createResult(@RequestBody @ApiParam(value = "Result", required = true) @Valid Result r) {
+        Result result = this.resultsRepository.save(r);
         URI uri = MvcUriComponentsBuilder.fromController(getClass()).path("/{id}").buildAndExpand(result.getId()).toUri();
         return ResponseEntity.created(uri).body(result);
     }
 
-
-    @ApiOperation(value = "Create or Update (idempotent) an existing Result", notes = "", authorizations = {@Authorization(value = "Bearer")})
+    @ApiOperation(value = "Create or Update (idempotent) an existing Result", authorizations = {@Authorization(value = "Bearer")})
     @PutMapping("results/{id}")
-    public ResponseEntity<Result> updateResult(@PathVariable("id") Long resultId, @RequestBody @ApiParam(value = "Result", required = true) @Valid Result p) {
-        return this.resultsRepository
-                .findById(resultId)
+    public ResponseEntity<Result> updateResult(@PathVariable("id") Long resultId, @RequestBody @ApiParam(value = "Result", required = true) @Valid Result r) {
+        return this.resultsRepository.findById(resultId)
                 .map(existing -> {
-                    p.setId(resultId);
-                    Result result = this.resultsRepository.save(p);
+                    r.setId(resultId);
+                    Result result = this.resultsRepository.save(r);
                     URI selfLink = URI.create(ServletUriComponentsBuilder.fromCurrentRequest().toUriString());
                     return ResponseEntity.created(selfLink).body(result);
                 }).orElseThrow(() -> new ResultNotFoundException(resultId));
     }
 
-
-    @ApiOperation(value = "Delete a Result", notes = "", authorizations = {@Authorization(value = "Bearer")})
+    @ApiOperation(value = "Delete a Result", authorizations = {@Authorization(value = "Bearer")})
     @DeleteMapping("results/{id}")
     public ResponseEntity<?> removeResult(@PathVariable("id") Long resultId) {
         return this.resultsRepository.findById(resultId)
-                .map(c -> {
-                    resultsRepository.delete(c);
+                .map(result -> {
+                    resultsRepository.delete(result);
                     return ResponseEntity.noContent().build();
                 }).orElseThrow(() -> new ResultNotFoundException(resultId));
     }
