@@ -1,6 +1,5 @@
 package com.systelab.studies.config.authentication;
 
-import com.systelab.studies.Constants;
 import com.systelab.studies.config.JwtConfig;
 import io.jsonwebtoken.Claims;
 import io.jsonwebtoken.Jwts;
@@ -25,6 +24,9 @@ import java.util.stream.Collectors;
 public class TokenProvider implements Serializable {
 
     private final JwtConfig properties;
+
+    public static final String AUTHORITIES_KEY = "scopes";
+
 
     @Autowired
     public TokenProvider(JwtConfig properties) {
@@ -58,7 +60,7 @@ public class TokenProvider implements Serializable {
                 .collect(Collectors.joining(","));
         return Jwts.builder()
                 .setSubject(authentication.getName())
-                .claim(Constants.AUTHORITIES_KEY, authorities)
+                .claim(AUTHORITIES_KEY, authorities)
                 .signWith(SignatureAlgorithm.HS256, properties.getClientSecret())
                 .setIssuedAt(new Date(System.currentTimeMillis()))
                 .setExpiration(new Date(System.currentTimeMillis() + properties.getTokenValiditySeconds() * 1000))
@@ -74,7 +76,7 @@ public class TokenProvider implements Serializable {
     public UsernamePasswordAuthenticationToken getAuthentication(final String token, final Authentication existingAuth, final UserDetails userDetails) {
         final Claims claims = getAllClaimsFromToken(token);
         final Collection<? extends GrantedAuthority> authorities =
-                Arrays.stream(claims.get(Constants.AUTHORITIES_KEY).toString().split(","))
+                Arrays.stream(claims.get(AUTHORITIES_KEY).toString().split(","))
                         .map(SimpleGrantedAuthority::new)
                         .collect(Collectors.toList());
         return new UsernamePasswordAuthenticationToken(userDetails, "", authorities);

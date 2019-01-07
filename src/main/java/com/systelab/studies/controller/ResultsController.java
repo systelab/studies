@@ -1,8 +1,7 @@
 package com.systelab.studies.controller;
 
 import com.systelab.studies.model.study.Result;
-import com.systelab.studies.repository.ResultNotFoundException;
-import com.systelab.studies.repository.ResultRepository;
+import com.systelab.studies.service.ResultsService;
 import io.swagger.annotations.Api;
 import io.swagger.annotations.ApiOperation;
 import io.swagger.annotations.ApiParam;
@@ -25,30 +24,29 @@ import java.net.URI;
 @RequestMapping(value = "/studies/v1", produces = MediaType.APPLICATION_JSON_VALUE)
 public class ResultsController {
 
-    private final ResultRepository resultsRepository;
+    private final ResultsService resultsService;
 
     @Autowired
-    public ResultsController(ResultRepository resultsRepository) {
-        this.resultsRepository = resultsRepository;
+    public ResultsController(ResultsService resultsService) {
+        this.resultsService = resultsService;
     }
 
     @ApiOperation(value = "Get all result", authorizations = {@Authorization(value = "Bearer")})
     @GetMapping("results")
     public ResponseEntity<Page<Result>> getAllResults(Pageable pageable) {
-        return ResponseEntity.ok(resultsRepository.findAll(pageable));
+        return ResponseEntity.ok(this.resultsService.getAllResults(pageable));
     }
 
     @ApiOperation(value = "Get Result", authorizations = {@Authorization(value = "Bearer")})
     @GetMapping("results/{id}")
     public ResponseEntity<Result> getResult(@PathVariable("id") Long resultId) {
-        return this.resultsRepository.findById(resultId).map(ResponseEntity::ok).orElseThrow(() -> new ResultNotFoundException(resultId));
-
+        return ResponseEntity.ok(this.resultsService.getResult(resultId));
     }
 
     @ApiOperation(value = "Create a Result", authorizations = {@Authorization(value = "Bearer")})
     @PostMapping("results/result")
     public ResponseEntity<Result> createResult(@RequestBody @ApiParam(value = "Result", required = true) @Valid Result r) {
-        Result result = this.resultsRepository.save(r);
+        Result result = this.resultsService.createResult(r);
         URI uri = MvcUriComponentsBuilder.fromController(getClass()).path("/{id}").buildAndExpand(result.getId()).toUri();
         return ResponseEntity.created(uri).body(result);
     }
@@ -56,22 +54,15 @@ public class ResultsController {
     @ApiOperation(value = "Create or Update (idempotent) an existing Result", authorizations = {@Authorization(value = "Bearer")})
     @PutMapping("results/{id}")
     public ResponseEntity<Result> updateResult(@PathVariable("id") Long resultId, @RequestBody @ApiParam(value = "Result", required = true) @Valid Result r) {
-        return this.resultsRepository.findById(resultId)
-                .map(existing -> {
-                    r.setId(resultId);
-                    Result result = this.resultsRepository.save(r);
-                    URI selfLink = URI.create(ServletUriComponentsBuilder.fromCurrentRequest().toUriString());
-                    return ResponseEntity.created(selfLink).body(result);
-                }).orElseThrow(() -> new ResultNotFoundException(resultId));
+        Result result = this.resultsService.updateResult(resultId, r);
+        URI selfLink = URI.create(ServletUriComponentsBuilder.fromCurrentRequest().toUriString());
+        return ResponseEntity.created(selfLink).body(result);
     }
 
     @ApiOperation(value = "Delete a Result", authorizations = {@Authorization(value = "Bearer")})
     @DeleteMapping("results/{id}")
     public ResponseEntity<?> removeResult(@PathVariable("id") Long resultId) {
-        return this.resultsRepository.findById(resultId)
-                .map(result -> {
-                    resultsRepository.delete(result);
-                    return ResponseEntity.noContent().build();
-                }).orElseThrow(() -> new ResultNotFoundException(resultId));
+        this.resultsService.removeResult(resultId);
+        return ResponseEntity.noContent().build();
     }
 }
